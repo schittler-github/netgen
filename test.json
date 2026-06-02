@@ -1,0 +1,28 @@
+{
+  "nodes": [
+    {
+      "id": "n1",
+      "label": "n1",
+      "name": "n1",
+      "x": -120.0,
+      "y": -40.0,
+      "radius": 21.0,
+      "color": "#dc4328"
+    },
+    {
+      "id": "n2",
+      "label": "n2",
+      "name": "n2",
+      "x": 0.0,
+      "y": -40.0,
+      "radius": 28,
+      "color": "#6fa8dc"
+    }
+  ],
+  "edges": [
+    {
+      "source": "n1",
+      "target": "n2"
+    }
+  ]
+}
