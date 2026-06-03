@@ -1,0 +1,68 @@
+{
+  "nodes": [
+    {
+      "display": {
+        "x": -320.0,
+        "y": -200.0,
+        "radius": 20,
+        "color": "#ffd966"
+      },
+      "graph": {
+        "id": "n1",
+        "label": "lif_rec"
+      },
+      "layer": {
+        "type": "lif_rec",
+        "N": 1,
+        "w_scale": 1,
+        "tau": 2.0
+      }
+    },
+    {
+      "display": {
+        "x": -240.0,
+        "y": -120.0,
+        "radius": 28,
+        "color": "#6fa8dc"
+      },
+      "graph": {
+        "id": "n2",
+        "label": "lif_forw"
+      },
+      "layer": {
+        "type": "lif_forw",
+        "N": 1,
+        "w_scale": 1,
+        "tau": 3.5
+      }
+    },
+    {
+      "display": {
+        "x": -120.0,
+        "y": -40.0,
+        "radius": 14,
+        "color": "#f4cccc"
+      },
+      "graph": {
+        "id": "n3",
+        "label": "lif_mult"
+      },
+      "layer": {
+        "type": "lif_mult",
+        "N": 0,
+        "w_scale": 1,
+        "tau": 1.2
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "n1",
+      "target": "n2"
+    },
+    {
+      "source": "n3",
+      "target": "n2"
+    }
+  ]
+}

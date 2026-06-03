@@ -9,6 +9,7 @@ from commands import (
     AddNodeCommand,
     DeleteEdgeCommand,
     DeleteNodeCommand,
+    DeleteNodesCommand,
     MacroCommand,
     MoveNodeCommand,
 )
@@ -75,7 +76,7 @@ class GraphEditorWindow(QtWidgets.QMainWindow):
         self.palette_nodes_layout.setContentsMargins(4, 4, 4, 4)
         self.palette_nodes_layout.setSpacing(6)
         scroll.setWidget(scroll_widget)
-        scroll.setFixedHeight(220)
+        scroll.setFixedHeight(340)
         palette_layout.addWidget(scroll)
 
         palette_layout.addSpacing(8)
@@ -189,10 +190,10 @@ class GraphEditorWindow(QtWidgets.QMainWindow):
             type = entry.get("type") or entry.get("label") or "Node"
             color = entry.get("color", "#6fa8dc")
             radius = entry.get("radius", GraphNode.NODE_RADIUS)
-            size = entry.get("size", 1.0)
+            N = entry.get("N", entry.get("size", 1))
             w_scale = entry.get("w_scale", 1.0)
             tau = entry.get("tau", 1.0)
-            template = {"type": type, "color": color, "radius": radius, "size": size, "w_scale": w_scale, "tau": tau}
+            template = {"type": type, "color": color, "radius": radius, "N": N, "w_scale": w_scale, "tau": tau}
             lbl = PaletteLabel(type, color=color, template=template)
             self.palette_nodes_layout.addWidget(lbl)
         self.palette_nodes_layout.addStretch()
@@ -248,18 +249,18 @@ class GraphEditorWindow(QtWidgets.QMainWindow):
         type = node_id
         color = "#6fa8dc"
         radius = GraphNode.NODE_RADIUS
-        size = 1.0
+        N = 1
         w_scale = 1.0
         tau = 1.0
         if template:
             type = template.get("type", type)
             color = template.get("color", color)
             radius = template.get("radius", radius)
-            size = template.get("size", size)
+            N = template.get("N", template.get("size", N))
             w_scale = template.get("w_scale", w_scale)
             tau = template.get("tau", tau)
         self.execute_command(
-            AddNodeCommand(self, node_id, point.x(), point.y(), radius, color, type, size=size, w_scale=w_scale, tau=tau)
+            AddNodeCommand(self, node_id, point.x(), point.y(), radius, color, type, N=N, w_scale=w_scale, tau=tau)
         )
 
     def load_json(self):
@@ -286,18 +287,36 @@ class GraphEditorWindow(QtWidgets.QMainWindow):
 
         node_list = data.get("nodes", [])
         for node_data in node_list:
-            node_id = node_data.get("id")
+            # Support both new grouped and old flat formats
+            if "graph" in node_data:
+                # New grouped format
+                graph = node_data.get("graph", {})
+                display = node_data.get("display", {})
+                layer = node_data.get("layer", {})
+                node_id = graph.get("id")
+                x = float(display.get("x", 0))
+                y = float(display.get("y", 0))
+                radius = float(display.get("radius", GraphNode.NODE_RADIUS))
+                color = display.get("color", "#6fa8dc")
+                type = layer.get("type", node_id)
+                N = float(layer.get("N", 1))
+                w_scale = float(layer.get("w_scale", 1.0))
+                tau = float(layer.get("tau", 1.0))
+            else:
+                # Old flat format (backward compatibility)
+                node_id = node_data.get("id")
+                x = float(node_data.get("x", 0))
+                y = float(node_data.get("y", 0))
+                radius = float(node_data.get("radius", GraphNode.NODE_RADIUS))
+                color = node_data.get("color", "#6fa8dc")
+                type = node_data.get("type", node_id)
+                N = float(node_data.get("N", node_data.get("size", 1)))
+                w_scale = float(node_data.get("w_scale", 1.0))
+                tau = float(node_data.get("tau", 1.0))
+
             if not node_id:
                 continue
-            x = float(node_data.get("x", 0))
-            y = float(node_data.get("y", 0))
-            radius = float(node_data.get("radius", GraphNode.NODE_RADIUS))
-            color = node_data.get("color", "#6fa8dc")
-            type = node_data.get("type", node_id)
-            size = float(node_data.get("size", 1.0))
-            w_scale = float(node_data.get("w_scale", 1.0))
-            tau = float(node_data.get("tau", 1.0))
-            self._create_node(node_id, x, y, radius, color, type, size=size, w_scale=w_scale, tau=tau)
+            self._create_node(node_id, x, y, radius, color, type, N=N, w_scale=w_scale, tau=tau)
 
         edge_list = data.get("edges", [])
         for edge_data in edge_list:
@@ -329,10 +348,10 @@ class GraphEditorWindow(QtWidgets.QMainWindow):
             return
         selected_nodes = {item.node_id for item in selected_items if isinstance(item, GraphNode)}
         commands = []
+        if selected_nodes:
+            commands.append(DeleteNodesCommand(self, selected_nodes))
         for item in selected_items:
-            if isinstance(item, GraphNode):
-                commands.append(DeleteNodeCommand(self, item.node_id))
-            elif isinstance(item, GraphEdge):
+            if isinstance(item, GraphEdge):
                 if item.source_node.node_id not in selected_nodes and item.target_node.node_id not in selected_nodes:
                     commands.append(DeleteEdgeCommand(self, item.source_node.node_id, item.target_node.node_id))
         if commands:
@@ -340,7 +359,7 @@ class GraphEditorWindow(QtWidgets.QMainWindow):
         else:
             self.status_bar.showMessage("No deletable items selected")
 
-    def _create_node(self, node_id, x, y, radius, color, node_type, size=1.0, w_scale=1.0, tau=1.0):
+    def _create_node(self, node_id, x, y, radius, color, node_type, N=1.0, w_scale=1.0, tau=1.0):
         if node_id in self.nodes:
             return
         node = GraphNode(
@@ -351,7 +370,7 @@ class GraphEditorWindow(QtWidgets.QMainWindow):
             radius=radius,
             color=color,
             node_type=node_type,
-            size=size,
+            N=N,
             w_scale=w_scale,
             tau=tau,
         )
@@ -363,7 +382,7 @@ class GraphEditorWindow(QtWidgets.QMainWindow):
             "radius": radius,
             "color": color,
             "type": node_type,
-            "size": size,
+            "N": N,
             "w_scale": w_scale,
             "tau": tau,
             "item": node,
@@ -453,13 +472,13 @@ class GraphEditorWindow(QtWidgets.QMainWindow):
         node_data["x"] = values["x"]
         node_data["y"] = values["y"]
         node_data["radius"] = values["radius"]
-        node_data["size"] = values["size"]
+        node_data["N"] = values["N"]
         node_data["w_scale"] = values.get("w_scale", node_data.get("w_scale", 1.0))
         node_data["tau"] = values["tau"]
         node_data["color"] = values["color"]
         node_item.node_type = values["type"]
         node_item.radius = values["radius"]
-        node_item.size = values["size"]
+        node_item.N = values["N"]
         node_item.w_scale = node_data.get("w_scale", getattr(node_item, "w_scale", 1.0))
         node_item.tau = values["tau"]
         node_item.color = values["color"]
@@ -472,6 +491,24 @@ class GraphEditorWindow(QtWidgets.QMainWindow):
         for edge_data in self.edges:
             if edge_data["source"] == node_id or edge_data["target"] == node_id:
                 edge_data["item"].update_position()
+
+    # a function to create an adjacency list representation of the graph, useful for algorithms
+    def adjacency_list(self):
+        adj = {node_id: [] for node_id in self.nodes}
+        for edge in self.edges:
+            adj[edge["source"]].append(edge["target"])
+        return adj
+    # a function to create an adjacency matrix representation of the graph, useful for algorithms
+    def adjacency_matrix(self):
+        node_ids = sorted(self.nodes.keys())
+        index = {node_id: i for i, node_id in enumerate(node_ids)}
+        size = len(node_ids)
+        matrix = [[0] * size for _ in range(size)]
+        for edge in self.edges:
+            source_idx = index[edge["source"]]
+            target_idx = index[edge["target"]]
+            matrix[source_idx][target_idx] = 1
+        return matrix
 
     def save_json(self):
         if not self.nodes:
@@ -488,16 +525,22 @@ class GraphEditorWindow(QtWidgets.QMainWindow):
         graph = {
             "nodes": [
                 {
-                    "id": node_id,
-                    "label": data.get("type", node_id),
-                    "type": data.get("type", node_id),
-                    "x": round(data["x"], 2),
-                    "y": round(data["y"], 2),
-                    "radius": data.get("radius", GraphNode.NODE_RADIUS),
-                    "size": data.get("size", 1.0),
-                    "w_scale": data.get("w_scale", 1.0),
-                    "tau": data.get("tau", 1.0),
-                    "color": data.get("color", "#6fa8dc"),
+                    "display": {
+                        "x": round(data["x"], 2),
+                        "y": round(data["y"], 2),
+                        "radius": data.get("radius", GraphNode.NODE_RADIUS),
+                        "color": data.get("color", "#6fa8dc"),
+                    },
+                    "graph": {
+                        "id": node_id,
+                        "label": data.get("type", node_id),
+                    },
+                    "layer": {
+                        "type": data.get("type", node_id),
+                        "N": int(data.get("N", 1)),
+                        "w_scale": data.get("w_scale", 1.0),
+                        "tau": data.get("tau", 1.0),
+                    },
                 }
                 for node_id, data in self.nodes.items()
             ],
@@ -505,6 +548,8 @@ class GraphEditorWindow(QtWidgets.QMainWindow):
                 {"source": edge["source"], "target": edge["target"]}
                 for edge in self.edges
             ],
+            "adjacency_list": self.adjacency_list(),
+            "adjacency_matrix": self.adjacency_matrix(),
         }
         with open(path, "w", encoding="utf-8") as handle:
             json.dump(graph, handle, indent=2)
@@ -544,4 +589,7 @@ class GraphEditorWindow(QtWidgets.QMainWindow):
         self.status_bar.showMessage(f"Exported Gremlin to {path}")
 
     def clear_graph(self):
-        self.execute_command(MacroCommand(self, "Clear graph", [DeleteNodeCommand(self, node_id) for node_id in list(self.nodes)]))
+        if not self.nodes:
+            self.status_bar.showMessage("Graph already empty")
+            return
+        self.execute_command(DeleteNodesCommand(self, list(self.nodes)))

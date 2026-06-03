@@ -1,0 +1,179 @@
+{
+  "nodes": [
+    {
+      "display": {
+        "x": -320.0,
+        "y": 0.0,
+        "radius": 18,
+        "color": "#ff8566"
+      },
+      "graph": {
+        "id": "n1",
+        "label": "start"
+      },
+      "layer": {
+        "type": "start",
+        "N": 1,
+        "w_scale": 1,
+        "tau": 2.0
+      }
+    },
+    {
+      "display": {
+        "x": -160.0,
+        "y": -160.0,
+        "radius": 28,
+        "color": "#ffff80"
+      },
+      "graph": {
+        "id": "n2",
+        "label": "lif_forw"
+      },
+      "layer": {
+        "type": "lif_forw",
+        "N": 1,
+        "w_scale": 1,
+        "tau": 3.5
+      }
+    },
+    {
+      "display": {
+        "x": -160.0,
+        "y": 0.0,
+        "radius": 28,
+        "color": "#ffff80"
+      },
+      "graph": {
+        "id": "n3",
+        "label": "lif_forw"
+      },
+      "layer": {
+        "type": "lif_forw",
+        "N": 1,
+        "w_scale": 1,
+        "tau": 3.5
+      }
+    },
+    {
+      "display": {
+        "x": -160.0,
+        "y": 160.0,
+        "radius": 28,
+        "color": "#ffff80"
+      },
+      "graph": {
+        "id": "n5",
+        "label": "lif_forw"
+      },
+      "layer": {
+        "type": "lif_forw",
+        "N": 1,
+        "w_scale": 1,
+        "tau": 3.5
+      }
+    },
+    {
+      "display": {
+        "x": 160.0,
+        "y": -160.0,
+        "radius": 28,
+        "color": "#ffff80"
+      },
+      "graph": {
+        "id": "n6",
+        "label": "lif_forw"
+      },
+      "layer": {
+        "type": "lif_forw",
+        "N": 1,
+        "w_scale": 1,
+        "tau": 3.5
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "n1",
+      "target": "n2"
+    },
+    {
+      "source": "n2",
+      "target": "n3"
+    },
+    {
+      "source": "n1",
+      "target": "n3"
+    },
+    {
+      "source": "n1",
+      "target": "n5"
+    },
+    {
+      "source": "n2",
+      "target": "n5"
+    },
+    {
+      "source": "n3",
+      "target": "n5"
+    },
+    {
+      "source": "n5",
+      "target": "n6"
+    }
+  ],
+  "adjacency_list": {
+    "n1": [
+      "n2",
+      "n3",
+      "n5"
+    ],
+    "n2": [
+      "n3",
+      "n5"
+    ],
+    "n3": [
+      "n5"
+    ],
+    "n5": [
+      "n6"
+    ],
+    "n6": []
+  },
+  "adjacency_matrix": [
+    [
+      0,
+      1,
+      1,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}

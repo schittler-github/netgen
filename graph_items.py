@@ -7,14 +7,14 @@ from PySide6.QtCore import Qt
 class GraphNode(QtWidgets.QGraphicsEllipseItem):
     NODE_RADIUS = 28
 
-    def __init__(self, node_id, x, y, editor, radius=None, color="#6fa8dc", node_type=None, size=1.0, w_scale=1.0, tau=1.0):
+    def __init__(self, node_id, x, y, editor, radius=None, color="#6fa8dc", node_type=None, N=1.0, w_scale=1.0, tau=1.0):
         radius = radius or self.NODE_RADIUS
         self.node_id = node_id
         self.editor = editor
         self.radius = radius
         self.color = color
         self.node_type = node_type or node_id
-        self.size = 1.0 if size is None else size
+        self.N = 1.0 if N is None else N
         self.w_scale = 1.0 if w_scale is None else w_scale
         self.tau = 1.0 if tau is None else tau
         super().__init__(-self.radius, -self.radius, self.radius * 2, self.radius * 2)

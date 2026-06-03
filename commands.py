@@ -30,7 +30,7 @@ class MacroCommand(Command):
 
 
 class AddNodeCommand(Command):
-    def __init__(self, editor, node_id, x, y, radius, color, node_type, size=1.0, w_scale=1.0, tau=1.0):
+    def __init__(self, editor, node_id, x, y, radius, color, node_type, N=1.0, w_scale=1.0, tau=1.0):
         super().__init__(editor, f"Add node {node_id}")
         self.node_id = node_id
         self.x = x
@@ -38,7 +38,7 @@ class AddNodeCommand(Command):
         self.radius = radius
         self.color = color
         self.node_type = node_type
-        self.size = size
+        self.N = N
         self.w_scale = w_scale
         self.tau = tau
 
@@ -50,7 +50,7 @@ class AddNodeCommand(Command):
             self.radius,
             self.color,
             self.node_type,
-            size=self.size,
+            N=self.N,
             w_scale=self.w_scale,
             tau=self.tau,
         )
@@ -109,7 +109,7 @@ class DeleteNodeCommand(Command):
         self.radius = node.get("radius", GraphNode.NODE_RADIUS)
         self.color = node.get("color", "#6fa8dc")
         self.node_type = node.get("type", node_id)
-        self.size = node.get("size", 1.0)
+        self.N = node.get("N", node.get("size", 1.0))
         self.w_scale = node.get("w_scale", 1.0)
         self.tau = node.get("tau", 1.0)
         self.outgoing = [edge.copy() for edge in editor.edges if edge["source"] == node_id]
@@ -126,10 +126,53 @@ class DeleteNodeCommand(Command):
             self.radius,
             self.color,
             self.node_type,
-            size=self.size,
+            N=self.N,
             w_scale=self.w_scale,
             tau=self.tau,
         )
         for edge in self.outgoing + self.incoming:
-            if edge["source"] != edge["target"]:
+            if edge["source"] != edge["target"] and edge["source"] in self.editor.nodes and edge["target"] in self.editor.nodes:
+                self.editor._add_edge(edge["source"], edge["target"])
+
+
+class DeleteNodesCommand(Command):
+    def __init__(self, editor, node_ids):
+        node_ids = list(node_ids)
+        super().__init__(editor, f"Delete nodes {', '.join(node_ids)}")
+        self.node_ids = node_ids
+        self.node_snapshots = {}
+        for node_id in self.node_ids:
+            node = editor.nodes[node_id]
+            self.node_snapshots[node_id] = {
+                "x": node["x"],
+                "y": node["y"],
+                "radius": node.get("radius", GraphNode.NODE_RADIUS),
+                "color": node.get("color", "#6fa8dc"),
+                "type": node.get("type", node_id),
+                "N": node.get("N", node.get("size", 1.0)),
+                "w_scale": node.get("w_scale", 1.0),
+                "tau": node.get("tau", 1.0),
+            }
+        self.edges = [edge.copy() for edge in editor.edges if edge["source"] in self.node_ids or edge["target"] in self.node_ids]
+
+    def do(self):
+        for node_id in list(self.node_ids):
+            self.editor._remove_node(node_id)
+
+    def undo(self):
+        for node_id in self.node_ids:
+            snapshot = self.node_snapshots[node_id]
+            self.editor._create_node(
+                node_id,
+                snapshot["x"],
+                snapshot["y"],
+                snapshot["radius"],
+                snapshot["color"],
+                snapshot["type"],
+                N=snapshot["N"],
+                w_scale=snapshot["w_scale"],
+                tau=snapshot["tau"],
+            )
+        for edge in self.edges:
+            if edge["source"] in self.editor.nodes and edge["target"] in self.editor.nodes:
                 self.editor._add_edge(edge["source"], edge["target"])

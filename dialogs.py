@@ -14,6 +14,7 @@ class NodePropertiesDialog(QtWidgets.QDialog):
 
         self.id_label = QtWidgets.QLabel(node_data["id"])
         self.type_edit = QtWidgets.QLineEdit(node_data.get("type", node_data["id"]))
+        self.type_edit.setReadOnly(True)
         self.x_spin = QtWidgets.QDoubleSpinBox()
         self.x_spin.setRange(-10000, 10000)
         self.x_spin.setValue(node_data["x"])
@@ -24,10 +25,10 @@ class NodePropertiesDialog(QtWidgets.QDialog):
         self.radius_spin.setRange(8, 200)
         self.radius_spin.setValue(node_data.get("radius", GraphNode.NODE_RADIUS))
         self.radius_spin.setSingleStep(1)
-        self.size_spin = QtWidgets.QDoubleSpinBox()
-        self.size_spin.setRange(0, 1000)
-        self.size_spin.setValue(node_data.get("size", 1.0))
-        self.size_spin.setSingleStep(0.1)
+        self.n_spin = QtWidgets.QSpinBox()
+        self.n_spin.setRange(1, 1000)
+        self.n_spin.setValue(int(node_data.get("N", node_data.get("size", 1))))
+        self.n_spin.setSingleStep(1)
         self.w_scale_spin = QtWidgets.QDoubleSpinBox()
         self.w_scale_spin.setRange(0, 1000)
         self.w_scale_spin.setValue(node_data.get("w_scale", 1.0))
@@ -53,7 +54,7 @@ class NodePropertiesDialog(QtWidgets.QDialog):
         separator.setFrameShape(QtWidgets.QFrame.HLine)
         separator.setFrameShadow(QtWidgets.QFrame.Sunken)
         form.addRow(separator)
-        form.addRow("Size:", self.size_spin)
+        form.addRow("N:", self.n_spin)
         form.addRow("w_scale:", self.w_scale_spin)
         form.addRow("Tau:", self.tau_spin)
 
@@ -78,7 +79,7 @@ class NodePropertiesDialog(QtWidgets.QDialog):
             "x": self.x_spin.value(),
             "y": self.y_spin.value(),
             "radius": self.radius_spin.value(),
-            "size": self.size_spin.value(),
+            "N": self.n_spin.value(),
             "w_scale": self.w_scale_spin.value(),
             "tau": self.tau_spin.value(),
             "color": self.color,

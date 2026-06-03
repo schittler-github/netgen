@@ -1,6 +1,9 @@
 [
-  { "type": "Input", "color": "#ffd966", "radius": 20, "size": 1.0, "tau": 2.0, "w_scale": 1 },
-  { "type": "Hidden", "color": "#6fa8dc", "radius": 28, "size": 1.5, "tau": 3.5, "w_scale": 1 },
-  { "type": "Output", "color": "#93c47d", "radius": 24, "size": 1.2, "tau": 2.8, "w_scale": 1 },
-  { "type": "Bias", "color": "#f4cccc", "radius": 14, "size": 0.8, "tau": 1.2, "w_scale": 1 }
+  { "type": "start", "color": "#ff8566", "radius": 18, "N": 1, "tau": 2.0, "w_scale": 1 },
+  { "type": "lif_rec", "color": "#b3ffb3", "radius": 28, "N": 1, "tau": 2.0, "w_scale": 1 },
+  { "type": "lif_forw", "color": "#ffff80", "radius": 28, "N": 1, "tau": 3.5, "w_scale": 1 },
+  { "type": "lif_rec_inh", "color": "#ffccff", "radius": 24, "N": 1, "tau": 2.8, "w_scale": 1 },
+  { "type": "li", "color": "#b3d9ff", "radius": 24, "N": 1, "tau": 1.2, "w_scale": 1 },
+  { "type": "lif_mult", "color": "#e6ccff", "radius":20, "N": 1, "tau": 1.2, "w_scale": 1 },
+  { "type": "end", "color": "#1a1aff", "radius": 18, "N": 1, "tau": 2.0, "w_scale": 1 }
 ]
