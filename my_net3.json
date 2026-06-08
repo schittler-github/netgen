@@ -1,0 +1,132 @@
+{
+  "nodes": [
+    {
+      "display": {
+        "x": -280.0,
+        "y": -120.0,
+        "radius": 18,
+        "color": "#ff8566"
+      },
+      "graph": {
+        "id": "n1",
+        "label": "start"
+      },
+      "layer": {
+        "type": "start",
+        "N": 1,
+        "w_scale": 1,
+        "tau": 2.0
+      }
+    },
+    {
+      "display": {
+        "x": -120.0,
+        "y": -240.0,
+        "radius": 28,
+        "color": "#b3ffb3"
+      },
+      "graph": {
+        "id": "n2",
+        "label": "lif_rec"
+      },
+      "layer": {
+        "type": "lif_rec",
+        "N": 1,
+        "w_scale": 1,
+        "tau": 2.0
+      }
+    },
+    {
+      "display": {
+        "x": 160.0,
+        "y": -200.0,
+        "radius": 28,
+        "color": "#ffff80"
+      },
+      "graph": {
+        "id": "n3",
+        "label": "lif_forw"
+      },
+      "layer": {
+        "type": "lif_forw",
+        "N": 1,
+        "w_scale": 1,
+        "tau": 3.5
+      }
+    },
+    {
+      "display": {
+        "x": 160.0,
+        "y": 0.0,
+        "radius": 18,
+        "color": "#1a1aff"
+      },
+      "graph": {
+        "id": "n4",
+        "label": "end"
+      },
+      "layer": {
+        "type": "end",
+        "N": 1,
+        "w_scale": 1,
+        "tau": 2.0
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "n1",
+      "target": "n2"
+    },
+    {
+      "source": "n2",
+      "target": "n3"
+    },
+    {
+      "source": "n1",
+      "target": "n4"
+    },
+    {
+      "source": "n2",
+      "target": "n4"
+    }
+  ],
+  "adjacency_list": {
+    "n1": [
+      "n2",
+      "n4"
+    ],
+    "n2": [
+      "n3",
+      "n4"
+    ],
+    "n3": [],
+    "n4": []
+  },
+  "adjacency_matrix": [
+    [
+      0,
+      1,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0
+    ]
+  ]
+}
